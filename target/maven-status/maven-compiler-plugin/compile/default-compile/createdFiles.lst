@@ -1,0 +1,5 @@
+com\example\guestbook\repository\PostRepository.class
+com\example\guestbook\entity\Post.class
+com\example\guestbook\service\PostService.class
+com\example\guestbook\GuestbookApplication.class
+com\example\guestbook\controller\BoardController.class

@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  mysqldb:
+    image: mysql:8
+    container_name: mysqldb
+    environment:
+      MYSQL_ROOT_PASSWORD: education
+      MYSQL_DATABASE: guestbook
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - guestbook_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$MYSQL_ROOT_PASSWORD"]
+      interval: 30s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+
+  guestbook-app:
+    image: observerlife/guestbook-app:latest  # 실제 이미지 이름을 사용하세요
+    container_name: guestbook-app
+    ports:
+      - "80:8080"
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysqldb:3306/guestbook?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: education
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: "org.hibernate.dialect.MySQL8Dialect"
+    depends_on:
+      - mysqldb
+    command: >
+      bash -c "until nc -z mysqldb 3306; do echo Waiting for MySQL...; sleep 2; done; java -jar /app/guestbook-app.jar"
+    networks:
+      - guestbook_network
+
+volumes:
+  mysql_data:
+
+networks:
+  guestbook_network:
+    driver: bridge
