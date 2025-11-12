@@ -49,6 +49,7 @@ jobs:
             curl -O https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.yml
 
             echo "==== [3] 컨테이너 재시작 ===="
+            docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' -p '${{ secrets.DOCKERHUB_TOKEN }}'
             docker-compose down
             docker-compose pull
             docker-compose up -d
